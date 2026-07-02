@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | EduPulse Student Registry{% endblock %}
+
+{% block content %}
+<!-- Calculate Metrics locally using Jinja context -->
+{% set total_students = students|length %}
+{% set honor_roll = namespace(count=0) %}
+{% set total_gpa = namespace(val=0) %}
+
+{% for student in students %}
+    {% set total_gpa.val = total_gpa.val + student.gpa %}
+    {% if student.gpa >= 3.5 %}
+        {% set honor_roll.count = honor_roll.count + 1 %}
+    {% endif %}
+{% endfor %}
+
+{% if total_students > 0 %}
+    {% set avg_gpa = (total_gpa.val / total_students)|round(2) %}
+{% else %}
+    {% set avg_gpa = 0.0 %}
+{% endif %}
+
+<!-- Metrics Dashboard Widgets -->
+<div class="metrics-grid">
+    <div class="metric-card card-blue">
+        <div class="metric-icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="metric-info">
+            <h3>Total Students</h3>
+            <p class="metric-value">{{ total_students }}</p>
+        </div>
+    </div>
+    
+    <div class="metric-card card-purple">
+        <div class="metric-icon">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div class="metric-info">
+            <h3>Average GPA</h3>
+            <p class="metric-value">{{ avg_gpa }}</p>
+        </div>
+    </div>
+
+    <div class="metric-card card-emerald">
+        <div class="metric-icon">
+            <i class="fa-solid fa-award"></i>
+        </div>
+        <div class="metric-info">
+            <h3>Honor Roll (3.5+)</h3>
+            <p class="metric-value">{{ honor_roll.count }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Controls -->
+<div class="dashboard-controls">
+    <div class="search-box-container">
+        <form action="{{ url_for('student.dashboard') }}" method="GET" class="search-form" id="searchForm">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" name="q" id="searchInput" placeholder="Search by name, ID, or major..." value="{{ search_query or '' }}" autocomplete="off">
+            {% if search_query %}
+                <a href="{{ url_for('student.dashboard') }}" class="clear-search-btn" title="Clear Search">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('student.add_student') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Add Student
+        </a>
+    </div>
+</div>
+
+<!-- Students Data Grid -->
+<div class="data-card shadow-card">
+    <div class="card-header">
+        <h2><i class="fa-solid fa-list"></i> Student Registry</h2>
+        <span class="badge badge-info">{{ total_students }} Records</span>
+    </div>
+    
+    <div class="table-responsive">
+        {% if total_students > 0 %}
+            <table class="data-table" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th class="sortable-header" data-sort="id" data-type="string">Student ID <i class="fa-solid fa-sort sort-icon"></i></th>
+                        <th class="sortable-header" data-sort="name" data-type="string">Full Name <i class="fa-solid fa-sort sort-icon"></i></th>
+                        <th class="sortable-header" data-sort="email" data-type="string">Email <i class="fa-solid fa-sort sort-icon"></i></th>
+                        <th class="sortable-header" data-sort="major" data-type="string">Major <i class="fa-solid fa-sort sort-icon"></i></th>
+                        <th class="sortable-header" data-sort="gpa" data-type="number">GPA <i class="fa-solid fa-sort sort-icon"></i></th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                        <tr class="student-row">
+                            <td class="student-id-col">
+                                <span class="badge-id">{{ student.student_id }}</span>
+                            </td>
+                            <td class="student-name-col">
+                                <div class="name-display">
+                                    <span class="avatar">{{ student.first_name[0] }}{{ student.last_name[0] }}</span>
+                                    <span>{{ student.first_name }} {{ student.last_name }}</span>
+                                </div>
+                            </td>
+                            <td>{{ student.email }}</td>
+                            <td>
+                                <span class="badge-major">{{ student.major }}</span>
+                            </td>
+                            <td>
+                                <span class="gpa-badge {% if student.gpa >= 3.5 %}gpa-excellent{% elif student.gpa >= 3.0 %}gpa-good{% else %}gpa-normal{% endif %}">
+                                    {{ "%.2f"|format(student.gpa) }}
+                                </span>
+                            </td>
+                            <td class="text-right actions-cell">
+                                <a href="{{ url_for('student.edit_student', id=student.id) }}" class="btn-action btn-edit" title="Edit Student">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <!-- Standard Secure Delete using POST method inside a form -->
+                                <form action="{{ url_for('student.delete_student', id=student.id) }}" method="POST" class="delete-form" onsubmit="return confirmDelete(event, '{{ student.first_name }} {{ student.last_name }}');">
+                                    <button type="submit" class="btn-action btn-delete" title="Delete Student">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h3>No Students Found</h3>
+                <p>Register a student to start building the directory.</p>
+                <a href="{{ url_for('student.add_student') }}" class="btn btn-primary">
+                    <i class="fa-solid fa-user-plus"></i> Add Student
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Confirmation dialog interface -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content glassmorphism">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <strong id="deleteStudentName"></strong> from the system? This action is permanent and cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button id="confirmDeleteBtn" class="btn btn-danger">Delete Student</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

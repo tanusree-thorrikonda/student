@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Management System{% endblock %}</title>
+    <!-- Modern Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Rich UI Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Link to Custom Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Glassmorphism Background Elements -->
+    <div class="blob-bg blob-1"></div>
+    <div class="blob-bg blob-2"></div>
+
+    <!-- Navigation Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <a href="{{ url_for('student.dashboard') }}" class="app-logo">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>EduPulse</span>
+            </a>
+            <nav class="app-nav">
+                <a href="{{ url_for('student.dashboard') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-simple"></i> Dashboard
+                </a>
+                <a href="{{ url_for('student.add_student') }}" class="nav-link {% if request.path == '/add' %}active{% endif %}">
+                    <i class="fa-solid fa-user-plus"></i> Add Student
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+        <div class="main-container">
+            <!-- Flash Message System -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alerts-container">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                <span class="alert-icon">
+                                    {% if category == 'success' %}
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                    {% endif %}
+                                </span>
+                                <span class="alert-message">{{ message }}</span>
+                                <button type="button" class="alert-close-btn" onclick="this.parentElement.remove();">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Dynamic Child Content -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>&copy; 2026 EduPulse Student Registry. Crafted for Academic Excellence.</p>
+        </div>
+    </footer>
+
+    <!-- Core Interactive Client Script -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
