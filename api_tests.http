@@ -1,0 +1,39 @@
+### 1. View Dashboard (Get all students)
+GET http://127.0.0.1:5000/
+
+###
+
+### 2. Add a Student (Create)
+POST http://127.0.0.1:5000/add
+Content-Type: application/x-www-form-urlencoded
+
+student_id=STU-2026-0005
+&first_name=Jane
+&last_name=Doe
+&email=jane.doe@university.edu
+&major=Computer Science
+&gpa=3.92
+
+###
+
+### 3. Update Student Details (Update)
+# Note: Replace '1' with the actual database ID of the student
+POST http://127.0.0.1:5000/edit/1
+Content-Type: application/x-www-form-urlencoded
+
+first_name=Jane (Updated)
+&last_name=Doe
+&email=jane.doe@university.edu
+&major=Artificial Intelligence
+&gpa=4.00
+
+###
+
+### 4. Search Students (Search query)
+GET http://127.0.0.1:5000/?q=Science
+
+###
+
+### 5. Delete Student (Delete)
+# Note: Replace '1' with the actual database ID of the student
+POST http://127.0.0.1:5000/delete/1
