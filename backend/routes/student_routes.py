@@ -1,10 +1,20 @@
 import re
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from backend.database import db
 from backend.models import Student
 
 # Create a Flask blueprint for student routes
 student_bp = Blueprint('student', __name__)
+
+@student_bp.before_request
+def check_login():
+    """
+    Guard function that restricts all student management routes
+    to logged-in administrators only.
+    """
+    if 'user_id' not in session:
+        flash("Please sign in to access the registry.", "warning")
+        return redirect(url_for('auth.login'))
 
 # Regular expression for basic email validation
 EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'

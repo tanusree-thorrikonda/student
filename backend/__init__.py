@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from backend.database import db
-from backend.routes import student_bp
+from backend.routes import student_bp, auth_bp
 from config import Config
 
 def create_app(config_class=Config):
@@ -27,8 +27,9 @@ def create_app(config_class=Config):
     # Bind SQLAlchemy to this app instance
     db.init_app(app)
 
-    # Register the student blueprint (CRUD routes)
+    # Register the blueprints
     app.register_blueprint(student_bp)
+    app.register_blueprint(auth_bp)
 
     # Automatically create tables in SQLite if they don't exist yet
     # Running db.create_all() within app_context ensures database handles are active

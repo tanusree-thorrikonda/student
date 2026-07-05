@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Create Admin Account | EduPulse{% endblock %}
+
+{% block content %}
+<div class="form-container-wrapper" style="max-width: 450px; margin: 40px auto;">
+    <div class="data-card form-card shadow-card">
+        <div class="card-header" style="text-align: center; border-bottom: none; padding-bottom: 0;">
+            <div class="empty-icon" style="font-size: 48px; color: var(--success); margin-bottom: 12px; opacity: 1;">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h2>Create Admin Account</h2>
+            <p class="subtitle">Register a new administrator login to start</p>
+        </div>
+
+        <form action="{{ url_for('auth.register') }}" method="POST" class="interactive-form" style="padding-top: 20px;">
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="username"><i class="fa-solid fa-user"></i> Username</label>
+                <input type="text" id="username" name="username" 
+                       placeholder="Choose a username" 
+                       value="{{ username or '' }}" required autocomplete="off">
+                <small class="form-help">3 to 30 characters.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="password"><i class="fa-solid fa-key"></i> Password</label>
+                <input type="password" id="password" name="password" 
+                       placeholder="Create password" required>
+                <small class="form-help">Must be at least 6 characters.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label for="confirm_password"><i class="fa-solid fa-circle-check"></i> Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" 
+                       placeholder="Re-enter password" required>
+            </div>
+
+            <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-user-check"></i> Register Account
+            </button>
+            
+            <div style="text-align: center; font-size: 13px; color: var(--text-muted);">
+                Already have an admin account? 
+                <a href="{{ url_for('auth.login') }}" style="color: var(--primary); font-weight: 600; text-decoration: underline;">
+                    Sign in here
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
